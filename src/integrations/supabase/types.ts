@@ -14,16 +14,339 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bens: {
+        Row: {
+          categoria_id: string | null
+          created_at: string
+          data_aquisicao: string | null
+          descricao: string
+          estado: Database["public"]["Enums"]["estado_conservacao"]
+          id: string
+          marca: string
+          modelo: string
+          nota_fiscal: string
+          numero_patrimonio: string
+          numero_serie: string
+          observacoes: string
+          responsavel: string
+          setor_id: string | null
+          situacao: Database["public"]["Enums"]["situacao_bem"]
+          updated_at: string
+          valor_aquisicao: number
+        }
+        Insert: {
+          categoria_id?: string | null
+          created_at?: string
+          data_aquisicao?: string | null
+          descricao: string
+          estado?: Database["public"]["Enums"]["estado_conservacao"]
+          id?: string
+          marca?: string
+          modelo?: string
+          nota_fiscal?: string
+          numero_patrimonio: string
+          numero_serie?: string
+          observacoes?: string
+          responsavel?: string
+          setor_id?: string | null
+          situacao?: Database["public"]["Enums"]["situacao_bem"]
+          updated_at?: string
+          valor_aquisicao?: number
+        }
+        Update: {
+          categoria_id?: string | null
+          created_at?: string
+          data_aquisicao?: string | null
+          descricao?: string
+          estado?: Database["public"]["Enums"]["estado_conservacao"]
+          id?: string
+          marca?: string
+          modelo?: string
+          nota_fiscal?: string
+          numero_patrimonio?: string
+          numero_serie?: string
+          observacoes?: string
+          responsavel?: string
+          setor_id?: string | null
+          situacao?: Database["public"]["Enums"]["situacao_bem"]
+          updated_at?: string
+          valor_aquisicao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bens_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bens_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categorias: {
+        Row: {
+          created_at: string
+          descricao: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventario_itens: {
+        Row: {
+          bem_id: string
+          conferido_em: string | null
+          conferido_por: string | null
+          id: string
+          inventario_id: string
+          observacao: string
+          status: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Insert: {
+          bem_id: string
+          conferido_em?: string | null
+          conferido_por?: string | null
+          id?: string
+          inventario_id: string
+          observacao?: string
+          status?: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Update: {
+          bem_id?: string
+          conferido_em?: string | null
+          conferido_por?: string | null
+          id?: string
+          inventario_id?: string
+          observacao?: string
+          status?: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventario_itens_bem_id_fkey"
+            columns: ["bem_id"]
+            isOneToOne: false
+            referencedRelation: "bens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventario_itens_inventario_id_fkey"
+            columns: ["inventario_id"]
+            isOneToOne: false
+            referencedRelation: "inventarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventarios: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          encerrado: boolean
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          encerrado?: boolean
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          encerrado?: boolean
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      movimentacoes: {
+        Row: {
+          bem_id: string
+          created_at: string
+          data_movimentacao: string
+          id: string
+          observacao: string
+          registrado_por: string | null
+          responsavel_destino: string
+          responsavel_origem: string
+          setor_destino_id: string | null
+          setor_origem_id: string | null
+          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Insert: {
+          bem_id: string
+          created_at?: string
+          data_movimentacao?: string
+          id?: string
+          observacao?: string
+          registrado_por?: string | null
+          responsavel_destino?: string
+          responsavel_origem?: string
+          setor_destino_id?: string | null
+          setor_origem_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Update: {
+          bem_id?: string
+          created_at?: string
+          data_movimentacao?: string
+          id?: string
+          observacao?: string
+          registrado_por?: string | null
+          responsavel_destino?: string
+          responsavel_origem?: string
+          setor_destino_id?: string | null
+          setor_origem_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimentacoes_bem_id_fkey"
+            columns: ["bem_id"]
+            isOneToOne: false
+            referencedRelation: "bens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_setor_destino_id_fkey"
+            columns: ["setor_destino_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_setor_origem_id_fkey"
+            columns: ["setor_origem_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          id: string
+          nome?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      setores: {
+        Row: {
+          created_at: string
+          id: string
+          localizacao: string
+          nome: string
+          sigla: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          localizacao?: string
+          nome: string
+          sigla?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          localizacao?: string
+          nome?: string
+          sigla?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "consulta"
+      estado_conservacao: "novo" | "bom" | "regular" | "ruim" | "inservivel"
+      situacao_bem: "em_uso" | "em_estoque" | "em_manutencao" | "baixado"
+      status_conferencia:
+        | "pendente"
+        | "conferido"
+        | "nao_localizado"
+        | "divergente"
+      tipo_movimentacao: "transferencia" | "manutencao" | "baixa" | "cadastro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +473,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "consulta"],
+      estado_conservacao: ["novo", "bom", "regular", "ruim", "inservivel"],
+      situacao_bem: ["em_uso", "em_estoque", "em_manutencao", "baixado"],
+      status_conferencia: [
+        "pendente",
+        "conferido",
+        "nao_localizado",
+        "divergente",
+      ],
+      tipo_movimentacao: ["transferencia", "manutencao", "baixa", "cadastro"],
+    },
   },
 } as const
