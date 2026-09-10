@@ -77,11 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Controle Patrimonial | Setor de Materiais UFSJ" },
+      {
+        name: "description",
+        content:
+          "Sistema de controle patrimonial do Setor de Materiais da UFSJ: cadastro, movimentação e inventário de bens.",
+      },
+      { name: "author", content: "UFSJ" },
+      { property: "og:title", content: "Controle Patrimonial | Setor de Materiais UFSJ" },
+      {
+        property: "og:description",
+        content: "Cadastro, movimentação e inventário de bens patrimoniais da UFSJ.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
