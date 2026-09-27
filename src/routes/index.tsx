@@ -629,23 +629,23 @@ function Resumo({
               <tr key={m} className="border-b border-border hover:bg-muted/30">
                 <td className="px-3 py-2 text-sm font-medium text-foreground">{m}</td>
                 <td className="px-3 py-2 text-right text-sm text-emerald-700">
-                  {formatarMoedaZero(totaisReceitas[i])}
+                  {formatarMoedaZero(totaisReceitas[i] ?? 0)}
                 </td>
                 <td className="px-3 py-2 text-right text-sm text-red-700">
-                  {formatarMoedaZero(totaisGastos[i])}
+                  {formatarMoedaZero(totaisGastos[i] ?? 0)}
                 </td>
                 <td className="px-3 py-2 text-right text-sm text-foreground">
-                  {formatarMoedaZero(sobra[i])}
+                  {formatarMoedaZero(sobra[i] ?? 0)}
                 </td>
                 <td className="px-3 py-2 text-right text-sm text-foreground">
                   {formatarMoedaZero(estado.poupanca[i] ?? 0)}
                 </td>
                 <td
                   className={`px-3 py-2 text-right text-sm font-semibold ${
-                    saldo[i] >= 0 ? "text-emerald-700" : "text-red-700"
+                    (saldo[i] ?? 0) >= 0 ? "text-emerald-700" : "text-red-700"
                   }`}
                 >
-                  {formatarMoedaZero(saldo[i])}
+                  {formatarMoedaZero(saldo[i] ?? 0)}
                 </td>
               </tr>
             ))}
