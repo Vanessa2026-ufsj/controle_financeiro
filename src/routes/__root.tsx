@@ -78,17 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Controle Patrimonial | Setor de Materiais UFSJ" },
+      { title: "Controle Financeiro Mensal" },
       {
         name: "description",
         content:
-          "Sistema de controle patrimonial do Setor de Materiais da UFSJ: cadastro, movimentação e inventário de bens.",
+          "Controle financeiro mensal: receitas, gastos, cartão de crédito parcelado e poupança ao longo dos 12 meses do ano.",
       },
-      { name: "author", content: "UFSJ" },
-      { property: "og:title", content: "Controle Patrimonial | Setor de Materiais UFSJ" },
+      { property: "og:title", content: "Controle Financeiro Mensal" },
       {
         property: "og:description",
-        content: "Cadastro, movimentação e inventário de bens patrimoniais da UFSJ.",
+        content: "Organize receitas, gastos, cartão de crédito e economias mês a mês.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
