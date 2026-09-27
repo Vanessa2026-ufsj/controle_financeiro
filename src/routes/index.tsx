@@ -113,10 +113,10 @@ function ControleFinanceiro() {
     estado.receitas.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0),
   );
   const totaisGastos = MESES.map((_, m) =>
-    estado.gastos.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0) + cartaoMes[m],
+    estado.gastos.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0) + (cartaoMes[m] ?? 0),
   );
-  const sobra = MESES.map((_, m) => totaisReceitas[m] - totaisGastos[m]);
-  const saldo = MESES.map((_, m) => sobra[m] - (estado.poupanca[m] ?? 0));
+  const sobra = MESES.map((_, m) => (totaisReceitas[m] ?? 0) - (totaisGastos[m] ?? 0));
+  const saldo = MESES.map((_, m) => (sobra[m] ?? 0) - (estado.poupanca[m] ?? 0));
 
   return (
     <div className="min-h-screen bg-background">
@@ -276,7 +276,7 @@ function SecaoLinhas({
           {MESES.map((_, m) => (
             <td key={m} className="px-1 py-1 text-center">
               <CelulaValor
-                valor={linha.valores[m]}
+                valor={linha.valores[m] ?? null}
                 onChange={(v) => atualizarLinha(tipo, linha.id, m, v)}
               />
             </td>
@@ -403,7 +403,7 @@ function Orcamento({
             {MESES.map((_, m) => (
               <td key={m} className="px-1 py-1 text-center">
                 <CelulaValor
-                  valor={estado.poupanca[m]}
+                  valor={estado.poupanca[m] ?? null}
                   onChange={(v) => atualizarPoupanca(m, v)}
                 />
               </td>
@@ -563,7 +563,7 @@ function CartaoCredito({
             <div key={m} className="rounded border border-border bg-muted/30 p-3">
               <div className="text-xs text-muted-foreground">{m}</div>
               <div className="text-sm font-bold text-foreground">
-                {formatarMoedaZero(cartaoMes[i])}
+                {formatarMoedaZero(cartaoMes[i] ?? 0)}
               </div>
             </div>
           ))}

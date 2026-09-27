@@ -132,7 +132,7 @@ export function cartaoPorMes(compras: CompraCartao[]): number[] {
     if (parcela <= 0) continue;
     for (let i = 0; i < compra.parcelas; i++) {
       const mes = compra.mesInicio + i;
-      if (mes < 12) totais[mes] += parcela;
+      if (mes < 12) totais[mes] = (totais[mes] ?? 0) + parcela;
     }
   }
   return totais;
