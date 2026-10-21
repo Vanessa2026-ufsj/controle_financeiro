@@ -119,7 +119,7 @@ function ControleFinanceiro() {
     estado.receitas.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0),
   );
   const totaisGastos = MESES.map((_, m) =>
-    estado.gastos.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0) + (cartaoMes[m] ?? 0),
+    estado.gastos.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0),
   );
   const sobra = MESES.map((_, m) => (totaisReceitas[m] ?? 0) - (totaisGastos[m] ?? 0));
   const saldo = MESES.map((_, m) => (sobra[m] ?? 0) - (estado.poupanca[m] ?? 0));
@@ -176,7 +176,6 @@ function ControleFinanceiro() {
         {aba === "orcamento" && (
           <Orcamento
             estado={estado}
-            cartaoMes={cartaoMes}
             totaisReceitas={totaisReceitas}
             totaisGastos={totaisGastos}
             sobra={sobra}
@@ -337,7 +336,6 @@ function LinhaTotal({
 
 function Orcamento({
   estado,
-  cartaoMes,
   totaisReceitas,
   totaisGastos,
   sobra,
@@ -349,7 +347,6 @@ function Orcamento({
   atualizarPoupanca,
 }: {
   estado: EstadoFinanceiro;
-  cartaoMes: number[];
   totaisReceitas: number[];
   totaisGastos: number[];
   sobra: number[];
@@ -395,19 +392,6 @@ function Orcamento({
             adicionarLinha={adicionarLinha}
             removerLinha={removerLinha}
           />
-          <tr className="border-b border-border bg-muted/20">
-            <td className="px-3 py-1 text-sm italic text-muted-foreground">
-              Cartão de crédito (automático)
-            </td>
-            {cartaoMes.map((v, i) => (
-              <td key={i} className="px-1 py-1 text-right text-sm italic text-muted-foreground">
-                {v > 0 ? formatarMoedaZero(v) : ""}
-              </td>
-            ))}
-            <td className="px-2 py-1 text-right text-sm font-semibold italic text-muted-foreground">
-              {formatarMoedaZero(cartaoMes.reduce((a, b) => a + b, 0))}
-            </td>
-          </tr>
           <LinhaTotal rotulo="Total de gastos" valores={totaisGastos} cor="vermelho" />
           <LinhaTotal rotulo="Sobra (receitas − gastos)" valores={sobra} />
 
@@ -499,7 +483,7 @@ function CartaoCredito({
                 <tr>
                   <td colSpan={6} className="px-2 py-6 text-center text-sm text-muted-foreground">
                     Nenhuma compra cadastrada. Adicione uma compra parcelada para
-                    distribuí-la automaticamente nos meses do orçamento.
+                    vê-la distribuída mês a mês na fatura abaixo.
                   </td>
                 </tr>
               )}
