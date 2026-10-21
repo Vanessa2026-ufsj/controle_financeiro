@@ -93,7 +93,7 @@ function ControleFinanceiro() {
   function removerLinha(tipo: "receitas" | "gastos", id: string) {
     const linha = estado[tipo].find((l) => l.id === id);
     if (linha && tipo === "gastos" && ehAluguel(linha.nome)) {
-      toast.info("O aluguel é um item fixo do sistema e não pode ser removido.");
+      toast.info("Aluguel + Condomínio é um item fixo do sistema e não pode ser removido.");
       return;
     }
     setEstado((prev) => ({
@@ -272,7 +272,7 @@ function SecaoLinhas({
               {tipo === "gastos" && ehAluguel(linha.nome) ? (
                 <span
                   className="text-muted-foreground/70"
-                  title="O aluguel é um item fixo e não pode ser removido"
+                  title="Aluguel + Condomínio é um item fixo e não pode ser removido"
                 >
                   <Lock className="h-3.5 w-3.5" />
                 </span>
