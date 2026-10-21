@@ -59,6 +59,26 @@ export function mesesVazios(): ValoresMeses {
   return Array(12).fill(null);
 }
 
+/** Nome do item de aluguel, que é fixo no sistema. */
+export const NOME_ALUGUEL = "Aluguel";
+
+/** Diz se uma linha de gasto é o aluguel, tolerante a espaços e acentos. */
+export function ehAluguel(nome: string): boolean {
+  return (
+    nome
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") === "aluguel"
+  );
+}
+
+/** Garante que a linha de aluguel exista sempre na lista de gastos. */
+export function garantirAluguel(gastos: Linha[]): Linha[] {
+  if (gastos.some((l) => ehAluguel(l.nome))) return gastos;
+  return [...gastos, { id: novoId(), nome: NOME_ALUGUEL, valores: mesesVazios() }];
+}
+
 export function estadoInicial(): EstadoFinanceiro {
   return {
     receitas: [
@@ -93,7 +113,7 @@ export function carregarEstado(): EstadoFinanceiro {
     }
     return {
       receitas: dados.receitas,
-      gastos: dados.gastos,
+      gastos: garantirAluguel(dados.gastos),
       poupanca:
         Array.isArray(dados.poupanca) && dados.poupanca.length === 12
           ? dados.poupanca
