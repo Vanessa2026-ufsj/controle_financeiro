@@ -17,6 +17,7 @@ import {
   valorParcela,
   formatarMoedaZero,
   exportarCsv,
+  ehAluguel,
   type EstadoFinanceiro,
   type Linha,
   type ValoresMeses,
@@ -90,6 +91,11 @@ function ControleFinanceiro() {
   }
 
   function removerLinha(tipo: "receitas" | "gastos", id: string) {
+    const linha = estado[tipo].find((l) => l.id === id);
+    if (linha && tipo === "gastos" && ehAluguel(linha.nome)) {
+      toast.info("O aluguel é um item fixo do sistema e não pode ser removido.");
+      return;
+    }
     setEstado((prev) => ({
       ...prev,
       [tipo]: prev[tipo].filter((l) => l.id !== id),
@@ -264,13 +270,22 @@ function SecaoLinhas({
                 onChange={(e) => renomearLinha(tipo, linha.id, e.target.value)}
                 className="h-8 w-44 border-transparent bg-transparent text-sm hover:border-input focus:bg-background"
               />
-              <button
-                onClick={() => removerLinha(tipo, linha.id)}
-                className="text-muted-foreground opacity-0 transition-opacity hover:text-destructive [tr:hover_&]:opacity-100"
-                title="Remover item"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              {tipo === "gastos" && ehAluguel(linha.nome) ? (
+                <span
+                  className="text-muted-foreground/70"
+                  title="O aluguel é um item fixo e não pode ser removido"
+                >
+                  <Lock className="h-3.5 w-3.5" />
+                </span>
+              ) : (
+                <button
+                  onClick={() => removerLinha(tipo, linha.id)}
+                  className="text-muted-foreground opacity-0 transition-opacity hover:text-destructive [tr:hover_&]:opacity-100"
+                  title="Remover item"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </td>
           {MESES.map((_, m) => (
