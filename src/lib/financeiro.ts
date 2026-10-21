@@ -84,13 +84,17 @@ export function ehAluguel(nome: string): boolean {
   return CHAVES_ALUGUEL.has(chaveItem(nome));
 }
 
-/** Garante que o item fixo exista na lista de gastos e esteja com o nome atual. */
-export function garantirAluguel(gastos: Linha[]): Linha[] {
+export const NOME_CARTAO = "Cartão de crédito";
+
+const CHAVES_CARTAO = new Set(["cartaodecredito", "cartaocredito", "cartao"]);
+
+/** Renomeia linhas antigas de aluguel e garante que a linha do cartão exista. */
+export function migrarGastos(gastos: Linha[]): Linha[] {
   const renomeados = gastos.map((l) =>
     ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l,
   );
-  if (renomeados.some((l) => l.nome === NOME_ALUGUEL)) return renomeados;
-  return [...renomeados, { id: novoId(), nome: NOME_ALUGUEL, valores: mesesVazios() }];
+  if (renomeados.some((l) => CHAVES_CARTAO.has(chaveItem(l.nome)))) return renomeados;
+  return [...renomeados, { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() }];
 }
 
 export function estadoInicial(): EstadoFinanceiro {
@@ -108,6 +112,7 @@ export function estadoInicial(): EstadoFinanceiro {
       { id: novoId(), nome: "Celular", valores: mesesVazios() },
       { id: novoId(), nome: "Saúde", valores: mesesVazios() },
       { id: novoId(), nome: "Lazer", valores: mesesVazios() },
+      { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() },
     ],
     poupanca: mesesVazios(),
     compras: [],
@@ -127,7 +132,7 @@ export function carregarEstado(): EstadoFinanceiro {
     }
     return {
       receitas: dados.receitas,
-      gastos: garantirAluguel(dados.gastos),
+      gastos: migrarGastos(dados.gastos),
       poupanca:
         Array.isArray(dados.poupanca) && dados.poupanca.length === 12
           ? dados.poupanca
