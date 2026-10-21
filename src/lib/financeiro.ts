@@ -59,24 +59,38 @@ export function mesesVazios(): ValoresMeses {
   return Array(12).fill(null);
 }
 
-/** Nome do item de aluguel, que é fixo no sistema. */
-export const NOME_ALUGUEL = "Aluguel";
+/** Nome do item fixo de moradia: aluguel mais condomínio. */
+export const NOME_ALUGUEL = "Aluguel + Condomínio";
 
-/** Diz se uma linha de gasto é o aluguel, tolerante a espaços e acentos. */
-export function ehAluguel(nome: string): boolean {
-  return (
-    nome
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") === "aluguel"
-  );
+const CHAVES_ALUGUEL = new Set([
+  "aluguel",
+  "aluguelcondominio",
+  "aluguelecondominio",
+  "aluguelmaiscondominio",
+]);
+
+/** Chave comparável de um nome: sem acentos, espaços ou símbolos. */
+function chaveItem(nome: string): string {
+  return nome
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
 }
 
-/** Garante que a linha de aluguel exista sempre na lista de gastos. */
+/** Diz se uma linha de gasto é o item de aluguel + condomínio. */
+export function ehAluguel(nome: string): boolean {
+  return CHAVES_ALUGUEL.has(chaveItem(nome));
+}
+
+/** Garante que o item fixo exista na lista de gastos e esteja com o nome atual. */
 export function garantirAluguel(gastos: Linha[]): Linha[] {
-  if (gastos.some((l) => ehAluguel(l.nome))) return gastos;
-  return [...gastos, { id: novoId(), nome: NOME_ALUGUEL, valores: mesesVazios() }];
+  const renomeados = gastos.map((l) =>
+    ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l,
+  );
+  if (renomeados.some((l) => l.nome === NOME_ALUGUEL)) return renomeados;
+  return [...renomeados, { id: novoId(), nome: NOME_ALUGUEL, valores: mesesVazios() }];
 }
 
 export function estadoInicial(): EstadoFinanceiro {
@@ -86,7 +100,7 @@ export function estadoInicial(): EstadoFinanceiro {
       { id: novoId(), nome: "Complemento", valores: mesesVazios() },
     ],
     gastos: [
-      { id: novoId(), nome: "Aluguel", valores: mesesVazios() },
+      { id: novoId(), nome: NOME_ALUGUEL, valores: mesesVazios() },
       { id: novoId(), nome: "Energia", valores: mesesVazios() },
       { id: novoId(), nome: "Água", valores: mesesVazios() },
       { id: novoId(), nome: "Supermercado", valores: mesesVazios() },
