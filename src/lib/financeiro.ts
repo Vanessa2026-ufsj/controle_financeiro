@@ -84,17 +84,13 @@ export function ehAluguel(nome: string): boolean {
   return CHAVES_ALUGUEL.has(chaveItem(nome));
 }
 
-export const NOME_CARTAO = "Cartão de crédito";
-
 const CHAVES_CARTAO = new Set(["cartaodecredito", "cartaocredito", "cartao"]);
 
-/** Renomeia linhas antigas de aluguel e garante que a linha do cartão exista. */
+/** Renomeia linhas antigas de aluguel e remove linhas manuais de cartão: a fatura entra automaticamente no Orçamento. */
 export function migrarGastos(gastos: Linha[]): Linha[] {
-  const renomeados = gastos.map((l) =>
-    ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l,
-  );
-  if (renomeados.some((l) => CHAVES_CARTAO.has(chaveItem(l.nome)))) return renomeados;
-  return [...renomeados, { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() }];
+  return gastos
+    .filter((l) => !CHAVES_CARTAO.has(chaveItem(l.nome)))
+    .map((l) => (ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l));
 }
 
 export function estadoInicial(): EstadoFinanceiro {
@@ -112,7 +108,6 @@ export function estadoInicial(): EstadoFinanceiro {
       { id: novoId(), nome: "Celular", valores: mesesVazios() },
       { id: novoId(), nome: "Saúde", valores: mesesVazios() },
       { id: novoId(), nome: "Lazer", valores: mesesVazios() },
-      { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() },
     ],
     poupanca: mesesVazios(),
     compras: [],
