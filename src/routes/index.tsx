@@ -112,8 +112,9 @@ function ControleFinanceiro() {
   const totaisReceitas = MESES.map((_, m) =>
     estado.receitas.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0),
   );
-  const totaisGastos = MESES.map((_, m) =>
-    estado.gastos.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0),
+  const totaisGastos = MESES.map(
+    (_, m) =>
+      estado.gastos.reduce((acc, l) => acc + (l.valores[m] ?? 0), 0) + (cartaoMes[m] ?? 0),
   );
   const sobra = MESES.map((_, m) => (totaisReceitas[m] ?? 0) - (totaisGastos[m] ?? 0));
   const saldo = MESES.map((_, m) => (sobra[m] ?? 0) - (estado.poupanca[m] ?? 0));
@@ -170,6 +171,7 @@ function ControleFinanceiro() {
         {aba === "orcamento" && (
           <Orcamento
             estado={estado}
+            cartaoMes={cartaoMes}
             totaisReceitas={totaisReceitas}
             totaisGastos={totaisGastos}
             sobra={sobra}
@@ -321,6 +323,7 @@ function LinhaTotal({
 
 function Orcamento({
   estado,
+  cartaoMes,
   totaisReceitas,
   totaisGastos,
   sobra,
@@ -332,6 +335,7 @@ function Orcamento({
   atualizarPoupanca,
 }: {
   estado: EstadoFinanceiro;
+  cartaoMes: number[];
   totaisReceitas: number[];
   totaisGastos: number[];
   sobra: number[];
@@ -377,6 +381,19 @@ function Orcamento({
             adicionarLinha={adicionarLinha}
             removerLinha={removerLinha}
           />
+          <tr className="border-b border-border hover:bg-muted/30">
+            <td className="px-3 py-1 text-sm font-semibold text-foreground">
+              Cartão de crédito (fatura)
+            </td>
+            {MESES.map((_, m) => (
+              <td key={m} className="px-1 py-1 text-right text-sm text-foreground">
+                {formatarMoedaZero(cartaoMes[m] ?? 0)}
+              </td>
+            ))}
+            <td className="px-2 py-1 text-right text-sm font-semibold text-foreground">
+              {formatarMoedaZero(cartaoMes.reduce((a, b) => a + b, 0))}
+            </td>
+          </tr>
           <LinhaTotal rotulo="Total de gastos" valores={totaisGastos} cor="vermelho" />
           <LinhaTotal rotulo="Sobra (receitas − gastos)" valores={sobra} />
 

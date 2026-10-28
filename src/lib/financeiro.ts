@@ -84,15 +84,13 @@ export function ehAluguel(nome: string): boolean {
   return CHAVES_ALUGUEL.has(chaveItem(nome));
 }
 
-export const NOME_CARTAO = "Cartão de crédito";
-
 const CHAVES_CARTAO = new Set(["cartaodecredito", "cartaocredito", "cartao"]);
 
-/** Renomeia linhas antigas de aluguel para o nome atual. */
+/** Renomeia linhas antigas de aluguel e remove linhas manuais de cartão: a fatura entra automaticamente no Orçamento. */
 export function migrarGastos(gastos: Linha[]): Linha[] {
-  return gastos.map((l) =>
-    ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l,
-  );
+  return gastos
+    .filter((l) => !CHAVES_CARTAO.has(chaveItem(l.nome)))
+    .map((l) => (ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l));
 }
 
 export function estadoInicial(): EstadoFinanceiro {
@@ -110,7 +108,6 @@ export function estadoInicial(): EstadoFinanceiro {
       { id: novoId(), nome: "Celular", valores: mesesVazios() },
       { id: novoId(), nome: "Saúde", valores: mesesVazios() },
       { id: novoId(), nome: "Lazer", valores: mesesVazios() },
-      { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() },
     ],
     poupanca: mesesVazios(),
     compras: [],
@@ -118,7 +115,6 @@ export function estadoInicial(): EstadoFinanceiro {
 }
 
 const CHAVE = "controle-financeiro-mensal-v1";
-const CHAVE_FLAG_CARTAO = "controle-financeiro-mensal-v1-cartao";
 
 export function carregarEstado(): EstadoFinanceiro {
   if (typeof window === "undefined") return estadoInicial();
@@ -129,18 +125,9 @@ export function carregarEstado(): EstadoFinanceiro {
     if (!Array.isArray(dados.receitas) || !Array.isArray(dados.gastos)) {
       return estadoInicial();
     }
-    let gastos = migrarGastos(dados.gastos);
-    // A linha "Cartão de crédito" entra uma única vez em dados antigos;
-    // depois disso pode ser removida como qualquer outra linha.
-    if (!window.localStorage.getItem(CHAVE_FLAG_CARTAO)) {
-      window.localStorage.setItem(CHAVE_FLAG_CARTAO, "1");
-      if (!gastos.some((l) => CHAVES_CARTAO.has(chaveItem(l.nome)))) {
-        gastos = [...gastos, { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() }];
-      }
-    }
     return {
       receitas: dados.receitas,
-      gastos,
+      gastos: migrarGastos(dados.gastos),
       poupanca:
         Array.isArray(dados.poupanca) && dados.poupanca.length === 12
           ? dados.poupanca
