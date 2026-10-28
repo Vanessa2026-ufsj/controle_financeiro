@@ -88,13 +88,11 @@ export const NOME_CARTAO = "Cartão de crédito";
 
 const CHAVES_CARTAO = new Set(["cartaodecredito", "cartaocredito", "cartao"]);
 
-/** Renomeia linhas antigas de aluguel e garante que a linha do cartão exista. */
+/** Renomeia linhas antigas de aluguel para o nome atual. */
 export function migrarGastos(gastos: Linha[]): Linha[] {
-  const renomeados = gastos.map((l) =>
+  return gastos.map((l) =>
     ehAluguel(l.nome) && l.nome !== NOME_ALUGUEL ? { ...l, nome: NOME_ALUGUEL } : l,
   );
-  if (renomeados.some((l) => CHAVES_CARTAO.has(chaveItem(l.nome)))) return renomeados;
-  return [...renomeados, { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() }];
 }
 
 export function estadoInicial(): EstadoFinanceiro {
@@ -120,6 +118,7 @@ export function estadoInicial(): EstadoFinanceiro {
 }
 
 const CHAVE = "controle-financeiro-mensal-v1";
+const CHAVE_FLAG_CARTAO = "controle-financeiro-mensal-v1-cartao";
 
 export function carregarEstado(): EstadoFinanceiro {
   if (typeof window === "undefined") return estadoInicial();
@@ -130,9 +129,18 @@ export function carregarEstado(): EstadoFinanceiro {
     if (!Array.isArray(dados.receitas) || !Array.isArray(dados.gastos)) {
       return estadoInicial();
     }
+    let gastos = migrarGastos(dados.gastos);
+    // A linha "Cartão de crédito" entra uma única vez em dados antigos;
+    // depois disso pode ser removida como qualquer outra linha.
+    if (!window.localStorage.getItem(CHAVE_FLAG_CARTAO)) {
+      window.localStorage.setItem(CHAVE_FLAG_CARTAO, "1");
+      if (!gastos.some((l) => CHAVES_CARTAO.has(chaveItem(l.nome)))) {
+        gastos = [...gastos, { id: novoId(), nome: NOME_CARTAO, valores: mesesVazios() }];
+      }
+    }
     return {
       receitas: dados.receitas,
-      gastos: migrarGastos(dados.gastos),
+      gastos,
       poupanca:
         Array.isArray(dados.poupanca) && dados.poupanca.length === 12
           ? dados.poupanca

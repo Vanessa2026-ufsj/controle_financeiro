@@ -17,7 +17,6 @@ import {
   valorParcela,
   formatarMoedaZero,
   exportarCsv,
-  ehAluguel,
   type EstadoFinanceiro,
   type Linha,
   type ValoresMeses,
