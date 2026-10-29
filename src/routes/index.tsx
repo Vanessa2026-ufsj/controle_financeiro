@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, Download, RotateCcw } from "lucide-react";
+import { Plus, Trash2, Download, RotateCcw, LayoutDashboard, Table2, ListChecks, CreditCard, BarChart3, ShieldCheck, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
+import { Painel } from "@/components/financeiro/Painel";
+import { Lancamentos } from "@/components/financeiro/Lancamentos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,12 +48,14 @@ export const Route = createFileRoute("/")({
   component: ControleFinanceiro,
 });
 
-type Aba = "orcamento" | "cartao" | "resumo";
+type Aba = "painel" | "orcamento" | "lancamentos" | "cartao" | "resumo";
 
 function ControleFinanceiro() {
   const [estado, setEstado] = useState<EstadoFinanceiro>(estadoInicial);
   const [carregado, setCarregado] = useState(false);
-  const [aba, setAba] = useState<Aba>("orcamento");
+  const [aba, setAba] = useState<Aba>("painel");
+  const [recolhido, setRecolhido] = useState(false);
+  const [menuMobile, setMenuMobile] = useState(false);
 
   useEffect(() => {
     setEstado(carregarEstado());
@@ -119,83 +123,144 @@ function ControleFinanceiro() {
   const sobra = MESES.map((_, m) => (totaisReceitas[m] ?? 0) - (totaisGastos[m] ?? 0));
   const saldo = MESES.map((_, m) => (sobra[m] ?? 0) - (estado.poupanca[m] ?? 0));
 
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-primary text-primary-foreground">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-4 px-4 py-3">
-          <div className="flex flex-col">
-            <span className="font-serif text-lg font-bold leading-tight">
-              Controle Financeiro Mensal
-            </span>
-            <span className="text-xs opacity-80">
-              Receitas, gastos, cartão e economias — mês a mês
-            </span>
-          </div>
-          <nav className="flex flex-1 gap-1">
-            {(
-              [
-                ["orcamento", "Orçamento"],
-                ["cartao", "Cartão de Crédito"],
-                ["resumo", "Resumo do Ano"],
-              ] as [Aba, string][]
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                onClick={() => setAba(id)}
-                className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-                  aba === id
-                    ? "bg-primary-foreground/15 opacity-100"
-                    : "opacity-85 hover:bg-primary-foreground/10 hover:opacity-100"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => exportarCsv(estado)}
-            >
-              <Download className="mr-1 h-4 w-4" /> Exportar CSV
-            </Button>
-            <Button size="sm" variant="secondary" onClick={redefinir}>
-              <RotateCcw className="mr-1 h-4 w-4" /> Limpar tudo
-            </Button>
-          </div>
-        </div>
-      </header>
+  const itens: { id: Aba; rotulo: string; icone: typeof LayoutDashboard; desc: string }[] = [
+    { id: "painel", rotulo: "Painel", icone: LayoutDashboard, desc: "Visão geral das suas finanças" },
+    { id: "orcamento", rotulo: "Orçamento", icone: Table2, desc: "Receitas, gastos e economia mês a mês" },
+    { id: "lancamentos", rotulo: "Lançamentos", icone: ListChecks, desc: "Pesquise, filtre e ordene seus lançamentos" },
+    { id: "cartao", rotulo: "Cartão de Crédito", icone: CreditCard, desc: "Compras parceladas e fatura mensal" },
+    { id: "resumo", rotulo: "Resumo do Ano", icone: BarChart3, desc: "Consolidado dos 12 meses" },
+  ];
+  const atual = itens.find((i) => i.id === aba) ?? itens[0]!;
 
-      <main className="mx-auto max-w-[1400px] px-4 py-6">
-        {aba === "orcamento" && (
-          <Orcamento
-            estado={estado}
-            cartaoMes={cartaoMes}
-            totaisReceitas={totaisReceitas}
-            totaisGastos={totaisGastos}
-            sobra={sobra}
-            saldo={saldo}
-            atualizarLinha={atualizarLinha}
-            renomearLinha={renomearLinha}
-            adicionarLinha={adicionarLinha}
-            removerLinha={removerLinha}
-            atualizarPoupanca={atualizarPoupanca}
-          />
-        )}
-        {aba === "cartao" && (
-          <CartaoCredito estado={estado} setEstado={setEstado} cartaoMes={cartaoMes} />
-        )}
-        {aba === "resumo" && (
-          <Resumo
-            estado={estado}
-            totaisReceitas={totaisReceitas}
-            totaisGastos={totaisGastos}
-            sobra={sobra}
-            saldo={saldo}
-          />
-        )}
-      </main>
+  const navegacao = (compacto: boolean) => (
+    <nav className="flex flex-col gap-1">
+      {itens.map((it) => (
+        <button
+          key={it.id}
+          title={compacto ? it.rotulo : undefined}
+          onClick={() => {
+            setAba(it.id);
+            setMenuMobile(false);
+          }}
+          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+            aba === it.id
+              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-card"
+              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          } ${compacto ? "justify-center px-0" : ""}`}
+        >
+          <it.icone className="h-5 w-5 shrink-0" />
+          {!compacto && <span className="truncate">{it.rotulo}</span>}
+        </button>
+      ))}
+    </nav>
+  );
+
+  const marca = (compacto: boolean) => (
+    <div className={`flex items-center gap-3 ${compacto ? "justify-center" : ""}`}>
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground">
+        <ShieldCheck className="h-5 w-5" />
+      </span>
+      {!compacto && (
+        <div className="min-w-0 leading-tight">
+          <div className="truncate font-serif text-sm font-bold text-sidebar-accent-foreground">Controle Financeiro</div>
+          <div className="text-xs text-sidebar-foreground/70">Mensal</div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="flex min-h-screen w-full bg-background">
+      <aside
+        className={`sticky top-0 hidden h-screen shrink-0 flex-col justify-between bg-sidebar p-4 transition-[width] duration-200 lg:flex ${
+          recolhido ? "w-20" : "w-64"
+        }`}
+      >
+        <div className="space-y-8">
+          {marca(recolhido)}
+          {navegacao(recolhido)}
+        </div>
+        <button
+          onClick={() => setRecolhido((v) => !v)}
+          className="flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent"
+          title={recolhido ? "Expandir menu" : "Recolher menu"}
+        >
+          {recolhido ? <PanelLeftOpen className="h-5 w-5" /> : <><PanelLeftClose className="h-5 w-5" /> Recolher menu</>}
+        </button>
+      </aside>
+
+      {menuMobile && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-foreground/40" onClick={() => setMenuMobile(false)} />
+          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col gap-8 bg-sidebar p-4">
+            <div className="flex items-center justify-between">
+              {marca(false)}
+              <button onClick={() => setMenuMobile(false)} className="text-sidebar-foreground" aria-label="Fechar menu">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {navegacao(false)}
+          </aside>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <button onClick={() => setMenuMobile(true)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-card lg:hidden" aria-label="Abrir menu">
+                <Menu className="h-5 w-5" />
+              </button>
+              <div className="min-w-0">
+                <h1 className="truncate font-serif text-lg font-bold text-foreground sm:text-xl">{atual.rotulo}</h1>
+                <p className="hidden truncate text-xs text-muted-foreground sm:block">{atual.desc}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => exportarCsv(estado)} title="Exportar CSV">
+                <Download className="h-4 w-4" /> <span className="hidden sm:inline">Exportar CSV</span>
+              </Button>
+              <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:text-destructive" onClick={redefinir} title="Limpar tudo">
+                <RotateCcw className="h-4 w-4" /> <span className="hidden sm:inline">Limpar tudo</span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="w-full max-w-[1500px] flex-1 px-4 py-6 sm:px-6">
+          {aba === "painel" && (
+            <Painel estado={estado} cartaoMes={cartaoMes} totaisReceitas={totaisReceitas} totaisGastos={totaisGastos} sobra={sobra} saldo={saldo} />
+          )}
+          {aba === "lancamentos" && <Lancamentos estado={estado} cartaoMes={cartaoMes} />}
+          {aba === "orcamento" && (
+            <Orcamento
+              estado={estado}
+              cartaoMes={cartaoMes}
+              totaisReceitas={totaisReceitas}
+              totaisGastos={totaisGastos}
+              sobra={sobra}
+              saldo={saldo}
+              atualizarLinha={atualizarLinha}
+              renomearLinha={renomearLinha}
+              adicionarLinha={adicionarLinha}
+              removerLinha={removerLinha}
+              atualizarPoupanca={atualizarPoupanca}
+            />
+          )}
+          {aba === "cartao" && (
+            <CartaoCredito estado={estado} setEstado={setEstado} cartaoMes={cartaoMes} />
+          )}
+          {aba === "resumo" && (
+            <Resumo
+              estado={estado}
+              totaisReceitas={totaisReceitas}
+              totaisGastos={totaisGastos}
+              sobra={sobra}
+              saldo={saldo}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
@@ -220,7 +285,7 @@ function CelulaValor({
         const t = e.target.value;
         onChange(t === "" ? null : Number(t));
       }}
-      className={`h-8 w-24 rounded border border-input bg-background px-2 text-right text-sm outline-none focus:ring-2 focus:ring-ring ${
+      className={`h-8 w-24 rounded-lg border border-input bg-background px-2 text-right text-sm outline-none focus:ring-2 focus:ring-ring ${
         destaque ? "font-semibold" : ""
       }`}
     />
@@ -246,7 +311,7 @@ function SecaoLinhas({
 }) {
   return (
     <>
-      <tr className="bg-muted/60">
+      <tr className="bg-secondary">
         <td colSpan={14} className="px-3 py-2 text-sm font-bold text-foreground">
           <div className="flex items-center justify-between">
             {titulo}
@@ -302,9 +367,9 @@ function LinhaTotal({
 }) {
   const classe =
     cor === "verde"
-      ? "text-emerald-700"
+      ? "text-success"
       : cor === "vermelho"
-        ? "text-red-700"
+        ? "text-destructive"
         : "text-foreground";
   return (
     <tr className="border-b border-border bg-muted/40">
@@ -347,7 +412,7 @@ function Orcamento({
   atualizarPoupanca: (mes: number, valor: number | null) => void;
 }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-primary text-primary-foreground">
@@ -442,7 +507,7 @@ function CartaoCredito({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+      <div className="rounded-2xl border border-border bg-card shadow-card p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold text-foreground">
             Compras no cartão de crédito
@@ -515,7 +580,7 @@ function CartaoCredito({
                           parcelas: Math.max(1, Math.min(12, Number(e.target.value) || 1)),
                         })
                       }
-                      className="h-8 w-16 rounded border border-input bg-background px-2 text-right text-sm outline-none focus:ring-2 focus:ring-ring"
+                      className="h-8 w-16 rounded-lg border border-input bg-background px-2 text-right text-sm outline-none focus:ring-2 focus:ring-ring"
                     />
                   </td>
                   <td className="px-2 py-1 text-right text-sm font-semibold text-foreground">
@@ -525,7 +590,7 @@ function CartaoCredito({
                     <select
                       value={c.mesInicio}
                       onChange={(e) => atualizar(c.id, { mesInicio: Number(e.target.value) })}
-                      className="h-8 rounded border border-input bg-background px-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                      className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                     >
                       {MESES.map((m, i) => (
                         <option key={m} value={i}>
@@ -555,13 +620,13 @@ function CartaoCredito({
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+      <div className="rounded-2xl border border-border bg-card shadow-card p-4 shadow-sm">
         <h2 className="mb-3 font-serif text-lg font-bold text-foreground">
           Fatura do cartão por mês
         </h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {MESES.map((m, i) => (
-            <div key={m} className="rounded border border-border bg-muted/30 p-3">
+            <div key={m} className="rounded-xl border border-border bg-muted/40 p-3">
               <div className="text-xs text-muted-foreground">{m}</div>
               <div className="text-sm font-bold text-foreground">
                 {formatarMoedaZero(cartaoMes[i] ?? 0)}
@@ -593,18 +658,18 @@ function Resumo({
   const totalSaldo = saldo.reduce((a, b) => a + b, 0);
 
   const cartoes = [
-    { rotulo: "Receitas no ano", valor: totalReceitas, cor: "text-emerald-700" },
-    { rotulo: "Gastos no ano", valor: totalGastos, cor: "text-red-700" },
+    { rotulo: "Receitas no ano", valor: totalReceitas, cor: "text-success" },
+    { rotulo: "Gastos no ano", valor: totalGastos, cor: "text-destructive" },
     { rotulo: "Sobra no ano", valor: sobra.reduce((a, b) => a + b, 0), cor: "text-foreground" },
     { rotulo: "Poupança no ano", valor: totalPoupanca, cor: "text-foreground" },
-    { rotulo: "Saldo acumulado", valor: totalSaldo, cor: totalSaldo >= 0 ? "text-emerald-700" : "text-red-700" },
+    { rotulo: "Saldo acumulado", valor: totalSaldo, cor: totalSaldo >= 0 ? "text-success" : "text-destructive" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {cartoes.map((c) => (
-          <div key={c.rotulo} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+          <div key={c.rotulo} className="rounded-2xl border border-border bg-card shadow-card p-4 shadow-sm">
             <div className="text-xs text-muted-foreground">{c.rotulo}</div>
             <div className={`mt-1 text-lg font-bold ${c.cor}`}>
               {formatarMoedaZero(c.valor)}
@@ -613,7 +678,7 @@ function Resumo({
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-primary text-primary-foreground">
@@ -629,10 +694,10 @@ function Resumo({
             {MESES.map((m, i) => (
               <tr key={m} className="border-b border-border hover:bg-muted/30">
                 <td className="px-3 py-2 text-sm font-medium text-foreground">{m}</td>
-                <td className="px-3 py-2 text-right text-sm text-emerald-700">
+                <td className="px-3 py-2 text-right text-sm text-success">
                   {formatarMoedaZero(totaisReceitas[i] ?? 0)}
                 </td>
-                <td className="px-3 py-2 text-right text-sm text-red-700">
+                <td className="px-3 py-2 text-right text-sm text-destructive">
                   {formatarMoedaZero(totaisGastos[i] ?? 0)}
                 </td>
                 <td className="px-3 py-2 text-right text-sm text-foreground">
@@ -643,7 +708,7 @@ function Resumo({
                 </td>
                 <td
                   className={`px-3 py-2 text-right text-sm font-semibold ${
-                    (saldo[i] ?? 0) >= 0 ? "text-emerald-700" : "text-red-700"
+                    (saldo[i] ?? 0) >= 0 ? "text-success" : "text-destructive"
                   }`}
                 >
                   {formatarMoedaZero(saldo[i] ?? 0)}
