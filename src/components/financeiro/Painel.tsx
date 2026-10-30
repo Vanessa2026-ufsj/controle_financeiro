@@ -46,7 +46,7 @@ function variacao(atual: number, anterior: number): number | null {
   return ((atual - anterior) / Math.abs(anterior)) * 100;
 }
 
-function Indicador({ valor, inverso }: { valor: number | null; inverso?: boolean }) {
+function Indicador({ valor, inverso }: { valor: number | null; inverso?: boolean | undefined }) {
   if (valor === null || !isFinite(valor)) return <span className="text-xs text-muted-foreground">sem comparação</span>;
   const bom = inverso ? valor <= 0 : valor >= 0;
   const Icone = valor >= 0 ? ArrowUpRight : ArrowDownRight;
