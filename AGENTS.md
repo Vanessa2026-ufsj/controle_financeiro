@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Financial UI pieces (Painel, Lancamentos) live in src/components/financeiro and only read state passed from src/routes/index.tsx — keeps calculations in one place.
