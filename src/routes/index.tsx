@@ -507,7 +507,7 @@ function CartaoCredito({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-border bg-card shadow-card p-4 shadow-sm">
+      <div className="rounded-2xl border border-border bg-card shadow-card p-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-serif text-lg font-bold text-foreground">
             Compras no cartão de crédito
@@ -620,7 +620,7 @@ function CartaoCredito({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card shadow-card p-4 shadow-sm">
+      <div className="rounded-2xl border border-border bg-card shadow-card p-4">
         <h2 className="mb-3 font-serif text-lg font-bold text-foreground">
           Fatura do cartão por mês
         </h2>
@@ -669,7 +669,7 @@ function Resumo({
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {cartoes.map((c) => (
-          <div key={c.rotulo} className="rounded-2xl border border-border bg-card shadow-card p-4 shadow-sm">
+          <div key={c.rotulo} className="rounded-2xl border border-border bg-card shadow-card p-4">
             <div className="text-xs text-muted-foreground">{c.rotulo}</div>
             <div className={`mt-1 text-lg font-bold ${c.cor}`}>
               {formatarMoedaZero(c.valor)}
