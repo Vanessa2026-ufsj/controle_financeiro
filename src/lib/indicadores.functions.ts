@@ -45,7 +45,7 @@ async function buscar(codigo: number, n: number): Promise<Ponto[]> {
 export const obterIndicadores = createServerFn({ method: "GET" }).handler(async (): Promise<RespostaIndicadores> => {
   const chaves = Object.keys(SERIES) as (keyof typeof SERIES)[];
   const res = await Promise.allSettled(
-    chaves.map((k) => buscar(SERIES[k], k === "selic" || k === "cdi" ? 1 : k === "tr" || k === "poupanca" ? 40 : 24)),
+    chaves.map((k) => buscar(SERIES[k], k === "selic" || k === "cdi" ? 1 : k === "tr" || k === "poupanca" ? 800 : 25)),
   );
   const series: RespostaIndicadores["series"] = {};
   const falhas: string[] = [];
