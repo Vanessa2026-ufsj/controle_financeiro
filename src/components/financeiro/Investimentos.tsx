@@ -160,7 +160,8 @@ export function Investimentos({ ind }: { ind: EstadoIndicadores }) {
     for (const k of ["selic", "cdi", "ipca", "igpm", "tr", "poupanca"] as Chave[]) o[cache.indicadores[k]?.nome ?? k] = cache.mensal[k]?.[m] ?? null;
     return o;
   });
-  const anual = ORDEM.map((k) => ({ nome: cache.indicadores[k]?.nome ?? k, "Acumulado 12 meses": cache.indicadores[k]?.acum12 ?? 0, cor: COR[k] }));
+  const CURTO: Record<Chave, string> = { selic: "Selic", cdi: "CDI", ipca: "IPCA", igpm: "IGP-M", tr: "TR", poupanca: "Poupança" };
+  const anual = ORDEM.map((k) => ({ nome: CURTO[k], "Acumulado 12 meses": cache.indicadores[k]?.acum12 ?? 0, cor: COR[k] }));
 
   const comparativo = (
     [
@@ -249,7 +250,7 @@ export function Investimentos({ ind }: { ind: EstadoIndicadores }) {
                   <tr key={a.id} className="border-t border-border">
                     <td className="px-3 py-2"><Input value={a.descricao} onChange={(e) => atualizar(a.id, { descricao: e.target.value })} className="h-9 w-44 rounded-lg" /></td>
                     <td className="px-3 py-2">
-                      <select value={a.indexador} onChange={(e) => atualizar(a.id, { indexador: e.target.value as Indexador })} className={`${sel} h-9 w-36`}>
+                      <select value={a.indexador} onChange={(e) => atualizar(a.id, { indexador: e.target.value as Indexador })} className={`${sel} h-9 w-40`}>
                         {(Object.keys(NOMES_INDEXADOR) as Indexador[]).map((k) => <option key={k} value={k}>{NOMES_INDEXADOR[k]}</option>)}
                       </select>
                     </td>
@@ -295,7 +296,7 @@ export function Investimentos({ ind }: { ind: EstadoIndicadores }) {
             <ResponsiveContainer>
               <BarChart data={anual}>
                 <CartesianGrid vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="nome" fontSize={10} tickLine={false} axisLine={false} stroke="var(--muted-foreground)" interval={0} tickFormatter={(v: string) => v.split(" ")[0] ?? v} />
+                <XAxis dataKey="nome" fontSize={10} tickLine={false} axisLine={false} stroke="var(--muted-foreground)" interval={0} />
                 <YAxis fontSize={11} width={40} tickLine={false} axisLine={false} stroke="var(--muted-foreground)" tickFormatter={(v) => `${v}%`} />
                 <Tooltip formatter={(v: number) => pct(v)} />
                 <Bar dataKey="Acumulado 12 meses" radius={[6, 6, 0, 0]} fill="var(--chart-1)" />

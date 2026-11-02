@@ -24,8 +24,16 @@ function paraIso(br: string): string {
   return `${a}-${m}-${d}`;
 }
 
-async function buscar(codigo: number, n: number): Promise<Ponto[]> {
-  const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados/ultimos/${n}?formato=json`;
+const br = (d: Date) => `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
+
+/** historico=false: último valor; true: últimos ~25 meses (a API limita "ultimos" a 20 registros). */
+async function buscar(codigo: number, historico: boolean): Promise<Ponto[]> {
+  const base = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados`;
+  const hoje = new Date();
+  const ini = new Date(Date.UTC(hoje.getUTCFullYear() - 2, hoje.getUTCMonth() - 1, 1));
+  const url = historico
+    ? `${base}?formato=json&dataInicial=${br(ini)}&dataFinal=${br(hoje)}`
+    : `${base}/ultimos/1?formato=json`;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 12000);
   try {
@@ -45,7 +53,7 @@ async function buscar(codigo: number, n: number): Promise<Ponto[]> {
 export const obterIndicadores = createServerFn({ method: "GET" }).handler(async (): Promise<RespostaIndicadores> => {
   const chaves = Object.keys(SERIES) as (keyof typeof SERIES)[];
   const res = await Promise.allSettled(
-    chaves.map((k) => buscar(SERIES[k], k === "selic" || k === "cdi" ? 1 : k === "tr" || k === "poupanca" ? 800 : 25)),
+    chaves.map((k) => buscar(SERIES[k], !(k === "selic" || k === "cdi"))),
   );
   const series: RespostaIndicadores["series"] = {};
   const falhas: string[] = [];

@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, Download, RotateCcw, LayoutDashboard, Table2, ListChecks, CreditCard, BarChart3, ShieldCheck, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
+import { Plus, Trash2, Download, RotateCcw, LayoutDashboard, Table2, ListChecks, CreditCard, BarChart3, ShieldCheck, LineChart as IconeInvest, PanelLeftClose, PanelLeftOpen, Menu, X } from "lucide-react";
 import { Painel } from "@/components/financeiro/Painel";
 import { Lancamentos } from "@/components/financeiro/Lancamentos";
+import { Investimentos, CardsIndicadores, useIndicadores } from "@/components/financeiro/Investimentos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/")({
   component: ControleFinanceiro,
 });
 
-type Aba = "painel" | "orcamento" | "lancamentos" | "cartao" | "resumo";
+type Aba = "painel" | "orcamento" | "lancamentos" | "investimentos" | "cartao" | "resumo";
 
 function ControleFinanceiro() {
   const [estado, setEstado] = useState<EstadoFinanceiro>(estadoInicial);
@@ -56,6 +57,7 @@ function ControleFinanceiro() {
   const [aba, setAba] = useState<Aba>("painel");
   const [recolhido, setRecolhido] = useState(false);
   const [menuMobile, setMenuMobile] = useState(false);
+  const indicadores = useIndicadores();
 
   useEffect(() => {
     setEstado(carregarEstado());
@@ -127,6 +129,7 @@ function ControleFinanceiro() {
     { id: "painel", rotulo: "Painel", icone: LayoutDashboard, desc: "Visão geral das suas finanças" },
     { id: "orcamento", rotulo: "Orçamento", icone: Table2, desc: "Receitas, gastos e economia mês a mês" },
     { id: "lancamentos", rotulo: "Lançamentos", icone: ListChecks, desc: "Pesquise, filtre e ordene seus lançamentos" },
+    { id: "investimentos", rotulo: "Investimentos", icone: IconeInvest, desc: "Taxas oficiais, aplicações e rentabilidade" },
     { id: "cartao", rotulo: "Cartão de Crédito", icone: CreditCard, desc: "Compras parceladas e fatura mensal" },
     { id: "resumo", rotulo: "Resumo do Ano", icone: BarChart3, desc: "Consolidado dos 12 meses" },
   ];
@@ -231,6 +234,8 @@ function ControleFinanceiro() {
           {aba === "painel" && (
             <Painel estado={estado} cartaoMes={cartaoMes} totaisReceitas={totaisReceitas} totaisGastos={totaisGastos} sobra={sobra} saldo={saldo} />
           )}
+          {aba === "painel" && <div className="mt-6"><CardsIndicadores ind={indicadores} /></div>}
+          {aba === "investimentos" && <Investimentos ind={indicadores} />}
           {aba === "lancamentos" && <Lancamentos estado={estado} cartaoMes={cartaoMes} />}
           {aba === "orcamento" && (
             <Orcamento
